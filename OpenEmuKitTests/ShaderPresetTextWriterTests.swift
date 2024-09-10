@@ -22,64 +22,76 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import Testing
 import XCTest
-import Nimble
 @testable import OpenEmuKit
 
-class ShaderPresetTextWriterTests: XCTestCase {
-    // swiftlint:disable:next type_name
-    typealias w = ShaderPresetTextWriter
+// swiftlint:disable:next type_name
+private typealias w = ShaderPresetTextWriter
+
+struct ShaderPresetTextWriterTests {
     
-    func testWriteDefaultOptions() throws {
+    @Test
+    func writeDefaultOptions() throws {
         let got = try w.write(preset: .init(name: "foo", shader: "CRT", parameters: ["a": 5, "b": 6]))
-        expect(got) == #"$shader="CRT";a=5;b=6"#
+        #expect(got == #"$shader="CRT";a=5;b=6"#)
     }
     
-    func testWriteAllOptions() throws {
+    @Test
+    func writeAllOptions() throws {
         let got = try w.write(preset: .init(name: "foo", shader: "CRT", parameters: ["a": 5, "b": 6.3]), options: [.all])
-        expect(got) == #"$name="foo";$shader="CRT";a=5;b=6.3"#
-    }
-
-    func testWriteParametersNoOptions() throws {
-        let got = try w.write(preset: .init(name: "foo", shader: "CRT", parameters: ["a": 5, "b": 6]), options: [])
-        expect(got) == #"a=5;b=6"#
-    }
-
-    func testWriteNoParametersDefaultOptions() throws {
-        let got = try w.write(preset: .init(name: "foo", shader: "CRT", parameters: [:]))
-        expect(got) == #"$shader="CRT""#
+        #expect(got == #"$name="foo";$shader="CRT";a=5;b=6.3"#)
     }
     
-    func testWriteNoParametersAndOptions() throws {
+    @Test
+    func writeParametersNoOptions() throws {
+        let got = try w.write(preset: .init(name: "foo", shader: "CRT", parameters: ["a": 5, "b": 6]), options: [])
+        #expect(got == #"a=5;b=6"#)
+    }
+    
+    @Test
+    func writeNoParametersDefaultOptions() throws {
+        let got = try w.write(preset: .init(name: "foo", shader: "CRT", parameters: [:]))
+        #expect(got == #"$shader="CRT""#)
+    }
+    
+    @Test
+    func writeNoParametersAndOptions() throws {
         let got = try w.write(preset: .init(name: "foo", shader: "CRT", parameters: [:]), options: [])
-        expect(got.isEmpty) == true
+        #expect(got.isEmpty)
     }
     
     // MARK: - invalid characters in identifiers
     
     let invalidCharacters = ShaderPresetTextWriter.invalidCharacters
     
-    func testIdDoesNotAllowInvalidCharacters() {
+    @Test
+    func idDoesNotAllowInvalidCharacters() {
         for ch in invalidCharacters {
-            expect {
+            #expect(throws: ShaderPresetWriteError.invalidCharacters) {
                 try w.write(preset: .init(name: "foo\(ch)foo", shader: "CRT", parameters: ["a": 5, "b": 6]), options: [.name])
-            }.to(throwError(ShaderPresetWriteError.invalidCharacters))
+            }
         }
     }
     
-    func testShaderDoesNotAllowInvalidCharacters() {
+    @Test
+    func shaderDoesNotAllowInvalidCharacters() {
         for ch in invalidCharacters {
-            expect {
+            #expect(throws: ShaderPresetWriteError.invalidCharacters) {
                 try w.write(preset: .init(name: "foo", shader: "CRT\(ch) Geom", parameters: ["a": 5, "b": 6]), options: [.shader])
-            }.to(throwError(ShaderPresetWriteError.invalidCharacters))
+            }
         }
     }
-
-    func testIsNotAValidIdentifier() {
+    
+    @Test
+    func isNotAValidIdentifier() {
         for ch in invalidCharacters {
-            expect(ShaderPresetTextWriter.isValidIdentifier("tt\(ch)tt")).toNot(beTrue())
+            #expect(ShaderPresetTextWriter.isValidIdentifier("tt\(ch)tt") == false)
         }
     }
+}
+
+class ShaderPresetTextWriterPerformanceTests: XCTestCase {
     
     func testWritePerformance() {
         let preset = ShaderPresetData(name: "foo", shader: "CRT", parameters: ["a": 5, "b": 6.3])

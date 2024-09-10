@@ -22,41 +22,48 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import Testing
 import XCTest
-import Nimble
 @testable import OpenEmuKit
 
-class ShaderPresetTextReaderTests: XCTestCase {
-    // swiftlint:disable:next type_name
-    typealias r = ShaderPresetTextReader
+// swiftlint:disable:next type_name
+private typealias r = ShaderPresetTextReader
+
+struct ShaderPresetTextReaderTests {
     
-    // MARK: - Without signature
-    
-    func testReadShaderParams() throws {
+    @Test
+    func readShaderParams() throws {
         let got = try r.read(text: #"$shader="CRT";a=5.0;b=6;neg=-1.1;pos=+3.2"#)
-        expect(got) == ShaderPresetData(name: "Unnamed shader preset", shader: "CRT", parameters: ["a": 5, "b": 6, "neg": -1.1, "pos": 3.2])
+        #expect(got == ShaderPresetData(name: "Unnamed shader preset", shader: "CRT", parameters: ["a": 5, "b": 6, "neg": -1.1, "pos": 3.2]))
     }
     
-    func testReadShaderParamsWithID() throws {
+    @Test
+    func readShaderParamsWithID() throws {
         let got = try r.read(text: #"$shader="CRT";a=5.0;b=6.0"#, id: "id1")
-        expect(got) == ShaderPresetData(name: "Unnamed shader preset", shader: "CRT", parameters: ["a": 5, "b": 6], id: "id1")
+        #expect(got == ShaderPresetData(name: "Unnamed shader preset", shader: "CRT", parameters: ["a": 5, "b": 6], id: "id1"))
     }
     
-    func testReadNameShaderParams() throws {
+    @Test
+    func readNameShaderParams() throws {
         let got = try r.read(text: #"$name="Name";$shader="CRT";a=5.0;b=6.0"#)
-        expect(got) == ShaderPresetData(name: "Name", shader: "CRT", parameters: ["a": 5, "b": 6])
+        #expect(got == ShaderPresetData(name: "Name", shader: "CRT", parameters: ["a": 5, "b": 6]))
     }
-
-    func testReadNameShaderParamsWithID() throws {
+    
+    @Test
+    func readNameShaderParamsWithID() throws {
         let got = try r.read(text: #"$name="Name";$shader="CRT";a=5.0;b=6.0"#, id: "id1")
-        expect(got) == ShaderPresetData(name: "Name", shader: "CRT", parameters: ["a": 5, "b": 6], id: "id1")
+        #expect(got == ShaderPresetData(name: "Name", shader: "CRT", parameters: ["a": 5, "b": 6], id: "id1"))
     }
-
-    func testReadParams() throws {
+    
+    @Test
+    func readParams() throws {
         let got = try r.read(text: #"a=5.0;b=6.0"#)
-        expect(got) == ShaderPresetData(name: "Unnamed shader preset", shader: "", parameters: ["a": 5, "b": 6])
+        #expect(got == ShaderPresetData(name: "Unnamed shader preset", shader: "", parameters: ["a": 5, "b": 6]))
     }
+}
 
+class ShaderPresetTextReaderPerformanceTests: XCTestCase {
+    
     func testReadPerformance() {
         measure {
             _ = try? r.read(text: #"$name="Name";$shader="CRT";a=5.0;b=6.0;c=2.2;d=1.1;e=1.1;f=1.1"#)

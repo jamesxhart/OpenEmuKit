@@ -80,7 +80,6 @@
 		05EEF0F22707C875008A03DC /* ShaderPresetData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05EEF0F12707C875008A03DC /* ShaderPresetData.swift */; };
 		05EEF1022707C986008A03DC /* ShaderPresetStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05EEF1012707C986008A03DC /* ShaderPresetStoreTests.swift */; };
 		05EEF1052707CA9B008A03DC /* OpenEmuKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05E6957F24CA5D4200ACFB35 /* OpenEmuKit.framework */; };
-		05EEF1082707D2ED008A03DC /* Nimble in Frameworks */ = {isa = PBXBuildFile; productRef = 05EEF1072707D2ED008A03DC /* Nimble */; };
 		8F3A1837285C9F88008A7AC9 /* NSBundle+CacheFlushing.m in Sources */ = {isa = PBXBuildFile; fileRef = 8F3A1836285C9F0E008A7AC9 /* NSBundle+CacheFlushing.m */; };
 		DD75EE5D298976C60056B3BA /* MTL3DGameRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD75EE5C298976C60056B3BA /* MTL3DGameRenderer.swift */; };
 /* End PBXBuildFile section */
@@ -214,7 +213,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				05EEF1052707CA9B008A03DC /* OpenEmuKit.framework in Frameworks */,
-				05EEF1082707D2ED008A03DC /* Nimble in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -538,7 +536,6 @@
 			);
 			name = OpenEmuKitTests;
 			packageProductDependencies = (
-				05EEF1072707D2ED008A03DC /* Nimble */,
 			);
 			productName = OpenEmuKitTests;
 			productReference = 05EEF0F72707C96B008A03DC /* OpenEmuKitTests.xctest */;
@@ -583,7 +580,6 @@
 			);
 			mainGroup = 05E6957524CA5D4200ACFB35;
 			packageReferences = (
-				05EEF1062707D2ED008A03DC /* XCRemoteSwiftPackageReference "Nimble" */,
 				0572A40F28783DDB00AC32F8 /* XCRemoteSwiftPackageReference "swift-atomics" */,
 			);
 			productRefGroup = 05E6958024CA5D4200ACFB35 /* Products */;
@@ -1005,14 +1001,6 @@
 				minimumVersion = 1.0.0;
 			};
 		};
-		05EEF1062707D2ED008A03DC /* XCRemoteSwiftPackageReference "Nimble" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Quick/Nimble";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 10.0.0;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1020,11 +1008,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 0572A40F28783DDB00AC32F8 /* XCRemoteSwiftPackageReference "swift-atomics" */;
 			productName = Atomics;
-		};
-		05EEF1072707D2ED008A03DC /* Nimble */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 05EEF1062707D2ED008A03DC /* XCRemoteSwiftPackageReference "Nimble" */;
-			productName = Nimble;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

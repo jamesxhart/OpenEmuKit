@@ -22,11 +22,11 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import XCTest
-import Nimble
+import Testing
 @testable import OpenEmuKit
 
-class ShaderPresetModelTests: XCTestCase {
+@Suite(.serialized)
+class ShaderPresetModelTests {
     
     struct ShadersModel: OpenEmuKit.ShadersModel {
         let shaders: [String: OEShaderModel]
@@ -40,19 +40,19 @@ class ShaderPresetModelTests: XCTestCase {
         }
     }
     
-    private var defaults: UserDefaults!
-    private var store: ShaderPresetStorage!
-    private var presets: ShaderPresetStore!
+    private let defaults: UserDefaults
+    private let store: ShaderPresetStorage
+    private let presets: ShaderPresetStore
     
-    private var path: String!
+    private let path: String
     
-    override func setUp() {
+    init() {
         path = FileManager.default
             .temporaryDirectory
             .appendingPathComponent("OpenEmuKitTests", isDirectory: true)
             .appendingPathComponent(UUID().uuidString).absoluteString
         
-        defaults = UserDefaults(suiteName: path)
+        defaults = UserDefaults(suiteName: path)!
         defaults.removePersistentDomain(forName: path)
         
         store = UserDefaultsPresetStorage(store: defaults)
@@ -61,7 +61,7 @@ class ShaderPresetModelTests: XCTestCase {
         try! store.save(ShaderPresetData(name: "shader 2", shader: "MAME", parameters: [:], id: "id2"))
         try! store.save(ShaderPresetData(name: "shader 3", shader: "MAME", parameters: [:], id: "id3"))
         try! store.save(ShaderPresetData(name: "shader 4", shader: "Retro", parameters: [:], id: "id4"))
-
+        
         let shaders = ShadersModel(models:
             OEShaderModel(name: "CRT"),
             OEShaderModel(name: "MAME"),
@@ -71,51 +71,46 @@ class ShaderPresetModelTests: XCTestCase {
         presets = ShaderPresetStore(store: store, shaders: shaders)
     }
     
-    override func tearDown() {
+    deinit {
         try? FileManager.default.removeItem(atPath: path)
     }
-
-    func testCanFindPreset() {
-        expect(self.presets.findPreset(byID: "id1"))
-            .toNot(be(nil))
+    
+    @Test
+    func canFindPreset() {
+        #expect(presets.findPreset(byID: "id1") != nil)
     }
     
-    func testInstancesAreSame() {
-        expect(self.presets.findPreset(byID: "id2")) === presets.findPreset(byID: "id2")
+    @Test
+    func instancesAreSame() {
+        #expect(presets.findPreset(byID: "id2") === presets.findPreset(byID: "id2"))
     }
     
-    func testFindPresets() {
-        expect(self.presets.findPresets(byShader: "MAME"))
-            .to(haveCount(2), description: "expected two presets for MAME shader")
-        
-        expect(self.presets.findPresets(byShader: "foo"))
-            .to(haveCount(0), description: "expected no presets for foo shader")
+    @Test
+    func findPresets() {
+        #expect(presets.findPresets(byShader: "MAME").count == 2, "Expected two presets for MAME shader")
+        #expect(presets.findPresets(byShader: "foo").isEmpty, "Expected no presets for foo shader")
     }
     
-    func testExists() {
-        expect(self.presets.exists(byID: "id2")) == true
-        expect(self.presets.exists(byID: "foo")) == false
+    @Test
+    func exists() {
+        #expect(presets.exists(byID: "id2") == true)
+        #expect(presets.exists(byID: "foo") == false)
     }
     
-    func testRemovePreset() {
-        let a = presets.findPreset(byID: "id2")
-        expect(a).toNot(beNil())
-        presets.removePreset(a!)
-        expect(self.presets.findPreset(byID: "id2")).to(beNil())
-        expect(self.presets.findPresets(byShader: "MAME"))
-            .to(haveCount(1), description: "expected one preset for MAME shader")
+    @Test
+    func removePreset() throws {
+        let a = try #require(presets.findPreset(byID: "id2"))
+        presets.removePreset(a)
+        #expect(presets.findPreset(byID: "id2") == nil)
+        #expect(presets.findPresets(byShader: "MAME").count == 1, "Expected one preset for MAME shader")
     }
     
-    func testRenamePreset() throws {
-        guard let a = presets.findPreset(byID: "id2")
-        else {
-            XCTFail("Expected to find id2")
-            return
-        }
+    @Test
+    func renamePreset() throws {
+        let a = try #require(presets.findPreset(byID: "id2"), "Expected to find id2")
         a.name = "dummy name"
         try presets.savePreset(a)
-        guard let b = presets.findPreset(byID: "id2")
-        else { return XCTFail("Expected to find id2") }
-        expect(b.name).to(equal("dummy name"))
+        let b = try #require(presets.findPreset(byID: "id2"), "Expected to find id2")
+        #expect(b.name == "dummy name")
     }
 }

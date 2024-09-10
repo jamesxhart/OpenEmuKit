@@ -22,46 +22,48 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import XCTest
-import Nimble
+import Testing
 @testable import OpenEmuKit
 
-class UserDefaultsPresetStorageTests: XCTestCase {
+@Suite(.serialized)
+class UserDefaultsPresetStorageTests {
     
-    private var defaults: UserDefaults!
-    private var store: UserDefaultsPresetStorage!
+    private let defaults: UserDefaults
+    private let store: UserDefaultsPresetStorage
     
-    private var path: String!
+    private let path: String
     
-    override func setUp() {
+    init() {
         path = FileManager.default
             .temporaryDirectory
             .appendingPathComponent("OpenEmuKitTests", isDirectory: true)
             .appendingPathComponent(UUID().uuidString).absoluteString
         
-        defaults = UserDefaults(suiteName: path)
+        defaults = UserDefaults(suiteName: path)!
         defaults.removePersistentDomain(forName: path)
         
         store = UserDefaultsPresetStorage(store: defaults)
     }
     
-    override func tearDown() {
+    deinit {
         try? FileManager.default.removeItem(atPath: path)
     }
-
-    func testSaveSearch() throws {
+    
+    @available(macOS 13.0, *)
+    @Test
+    func saveSearch() throws {
         try store.save(ShaderPresetData(name: "id1", shader: "CRT", parameters: [:]))
         try store.save(ShaderPresetData(name: "id2", shader: "CRT", parameters: [:]))
         try store.save(ShaderPresetData(name: "id3", shader: "MAME", parameters: [:]))
         try store.save(ShaderPresetData(name: "id4", shader: "Pixellate", parameters: [:]))
-    
+        
         do {
             let presets = store.findPresets(byShader: "CRT")
             let exp = [
                 "id1",
                 "id2",
             ]
-            expect(presets.map(\.id)).to(contain(exp))
+            #expect(presets.map(\.id).contains(exp))
         }
         
         // Test removing a preset
@@ -70,16 +72,15 @@ class UserDefaultsPresetStorageTests: XCTestCase {
             store.remove(preset)
             let presets = store.findPresets(byShader: "CRT")
             let exp = [ "id2" ]
-            expect(presets.map(\.id)).to(contain(exp))
+            #expect(presets.map(\.id).contains(exp))
         }
     }
     
-    func testFailsForModifiedShader() {
-        let store = store!
-        expect {
+    @Test
+    func failsForModifiedShader() {
+        #expect(throws: ShaderPresetStorageError.shaderModified) {
             try store.save(ShaderPresetData(name: "foo", shader: "CRT", parameters: [:], id: "id1"))
             try store.save(ShaderPresetData(name: "foo", shader: "MAME", parameters: [:], id: "id1"))
         }
-        .to(throwError(ShaderPresetStorageError.shaderModified))
     }
 }

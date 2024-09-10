@@ -23,7 +23,6 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import XCTest
-import Nimble
 @testable import OpenEmuKit
 
 class ShaderPresetTests: XCTestCase {

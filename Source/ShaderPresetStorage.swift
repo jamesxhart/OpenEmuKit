@@ -24,7 +24,7 @@
 
 import Foundation
 
-public enum ShaderPresetStorageError: Error {
+public enum ShaderPresetStorageError: Error, Equatable {
     /// The preset shader was changed
     case shaderModified
     

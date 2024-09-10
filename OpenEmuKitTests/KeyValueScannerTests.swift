@@ -22,17 +22,17 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import XCTest
-import Nimble
+import Testing
 
 @testable import OpenEmuKitPrivate
 @testable import OpenEmuKit
 
-class KeyValueScannerTests: XCTestCase {
+struct KeyValueScannerTests {
     
     // MARK: - Valid Input
     
-    func testIsValidWithAllParts() {
+    @Test
+    func isValidWithAllParts() {
         let str = #"$name="The Name";$shader="MAME HLSL";ccvalue=3.5795;chromaa_y=0.3401;neg=-1.1;pos=+0.3"#
         let (tokens, text) = parse(text: str)
         
@@ -43,7 +43,7 @@ class KeyValueScannerTests: XCTestCase {
             .identifier, .float,
             .identifier, .float,
         ]
-        expect(tokens).to(equal(expTok))
+        #expect(tokens == expTok)
         
         let expText: [String] = [
             "$name", "The Name", "$shader", "MAME HLSL",
@@ -52,66 +52,67 @@ class KeyValueScannerTests: XCTestCase {
             "neg", "-1.1",
             "pos", "+0.3",
         ]
-        expect(text).to(equal(expText))
+        #expect(text == expText)
     }
     
-    func testIsValidWithStringPartsInUTF8() {
+    @Test
+    func isValidWithStringPartsInUTF8() {
         let str = #"$name="The Name ❤️";$shader="MÄMÉ HLSL";ccvalue=3.5795;chromaa_y=1"#
         let (tokens, text) = parse(text: str)
         
         let expTok: [KVToken] = [.systemIdentifier, .string, .systemIdentifier, .string, .identifier, .float, .identifier, .float]
-        expect(tokens).to(equal(expTok))
+        #expect(tokens == expTok)
         
         let expText: [String] = ["$name", "The Name ❤️", "$shader", "MÄMÉ HLSL", "ccvalue", "3.5795", "chromaa_y", "1"]
-        expect(text).to(equal(expText))
+        #expect(text == expText)
     }
-
-    func testIsValidWithNoReserved() {
+    
+    @Test
+    func isValidWithNoReserved() {
         let str = #"ccvalue=3.5795;chromaa_y=0.3401"#
         let (tokens, text) = parse(text: str)
         
         let expTok: [KVToken] = [.identifier, .float, .identifier, .float]
-        expect(tokens).to(equal(expTok))
+        #expect(tokens == expTok)
         
         let expText: [String] = ["ccvalue", "3.5795", "chromaa_y", "0.3401"]
-        expect(text).to(equal(expText))
+        #expect(text == expText)
     }
-
+    
     // MARK: - Invalid Input
-
-    func testIsInvalidUnclosedQuoteInName() {
+    
+    @Test
+    func isInvalidUnclosedQuoteInName() {
         let str = #"$name="The Name;$shader="MAME HLSL";ccvalue=3.5795;chromaa_y=0.3401"#
-        expect {
+        #expect(throws: PKVScanner.Error.malformed) {
             try PKVScanner.parse(text: str)
         }
-        .to(throwError(PKVScanner.Error.malformed))
-
     }
-
-    func testIsInvalidMissingSeparator() {
+    
+    @Test
+    func isInvalidMissingSeparator() {
         let str = #"$name="The Name"$shader="MAME HLSL";ccvalue=3.5795;chromaa_y=0.3401"#
-        expect {
+        #expect(throws: PKVScanner.Error.malformed) {
             try PKVScanner.parse(text: str)
         }
-        .to(throwError(PKVScanner.Error.malformed))
-
     }
-
-    func testIsInvalidMissingParameterName() {
+    
+    @Test
+    func isInvalidMissingParameterName() {
         let str = #"=3.5795;chromaa_y=0.3401"#
-        expect {
+        #expect(throws: PKVScanner.Error.malformed) {
             try PKVScanner.parse(text: str)
         }
-        .to(throwError(PKVScanner.Error.malformed))
     }
-
-    func testIsInvalidNotValidFloat() {
-        expect {
-            try PKVScanner.parse(text: #"ccvalue=foo;chromaa_y=0.3401"#)
+    
+    @Test
+    func isInvalidNotValidFloat() {
+        let str = #"ccvalue=foo;chromaa_y=0.3401"#
+        #expect(throws: PKVScanner.Error.malformed) {
+            try PKVScanner.parse(text: str)
         }
-        .to(throwError(PKVScanner.Error.malformed))
     }
-
+    
     func parse(text: String) -> ([KVToken], [String]) {
         guard let tokens = try? PKVScanner.parse(text: text) else { return ([], []) }
         
