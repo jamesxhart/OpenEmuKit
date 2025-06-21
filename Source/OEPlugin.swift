@@ -23,7 +23,7 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import Foundation
-@_implementationOnly import os.log
+import os.log
 
 public enum OEGameCorePluginError: Int, CustomNSError {
     case alreadyLoaded = -1000

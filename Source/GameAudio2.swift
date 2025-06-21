@@ -24,7 +24,7 @@
 
 import Foundation
 import AVFoundation
-@_implementationOnly import os
+import os
 import OpenEmuBase.OEGameCore
 
 @available(macOS 11.0, iOS 14.0, *)

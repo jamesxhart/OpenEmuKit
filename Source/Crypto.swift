@@ -23,7 +23,7 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import Foundation
-@_implementationOnly import CommonCrypto
+import CommonCrypto
 
 public enum Crypto {
     public struct MD5 {
