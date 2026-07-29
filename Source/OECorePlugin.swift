@@ -226,7 +226,8 @@ public class OECorePlugin: OEPlugin {
            result == errSecSuccess {
             
             // Check the code signature
-            let validityResult = SecStaticCodeCheckValidity(code, [], nil)
+            let flags = SecCSFlags(rawValue: kSecCSBasicValidateOnly)
+            let validityResult = SecStaticCodeCheckValidity(code, flags, nil)
             if validityResult == errSecSuccess {
                 return true
             } else {
